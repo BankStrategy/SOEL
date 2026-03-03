@@ -1,0 +1,14 @@
+This is a secure e-commerce system.
+
+A Customer has a name, an email address, and a VIP status. VIP customers get a 10% discount on all purchases.
+
+A Product has a name, a price in dollars and cents, and a stock quantity. Products can be in stock or out of stock.
+
+A Cart belongs to a customer and contains a list of cart items. Each cart item references a product and has a quantity.
+
+The system can:
+- Add items to a cart (only if the product is in stock)
+- Calculate the total price of a cart, applying the VIP discount if applicable
+- Display a formatted receipt showing each item, its price, any discount, and the grand total
+
+The main program creates two customers (one regular, one VIP), several products (a laptop at $999.99, headphones at $49.99, and a book at $15.00), adds items to both customers' carts, and prints receipts for each.

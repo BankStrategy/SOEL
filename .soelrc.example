@@ -1,0 +1,16 @@
+{
+  "openrouter": {
+    "apiKey": "sk-or-v1-your-key-here",
+    "model": "anthropic/claude-opus-4.6"
+  },
+  "haskell": {
+    "ghcPath": "ghc",
+    "ghcFlags": ["-O2", "-Wall"],
+    "extensions": ["OverloadedStrings", "DeriveGeneric"]
+  },
+  "compiler": {
+    "encoderMode": "full",
+    "ambiguityThreshold": 0.7,
+    "maxDialogRounds": 5
+  }
+}

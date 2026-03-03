@@ -1,0 +1,9 @@
+This is a simple arithmetic calculator.
+
+The calculator supports four operations: addition, subtraction, multiplication, and division.
+
+An Operation is one of: Add, Subtract, Multiply, or Divide.
+
+There is a function called "calculate" that takes two numbers and an operation, and returns the result. Division by zero should return Nothing to indicate an error.
+
+The main program demonstrates each operation with sample numbers: it calculates 10 + 5, 20 - 8, 6 * 7, and 15 / 3, printing each result. It also shows what happens when dividing by zero.

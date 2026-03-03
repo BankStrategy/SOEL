@@ -1,0 +1,9 @@
+This is a simple to-do list manager.
+
+A Task has a title, a description, and a completion status (done or not done).
+
+A TodoList is a collection of tasks.
+
+You can add a task to the list, mark a task as complete by its title, and display all tasks showing their status.
+
+The main program creates a to-do list with three sample tasks: "Buy groceries", "Write report", and "Exercise". It marks "Buy groceries" as complete, then displays all tasks with their completion status, using "[x]" for done and "[ ]" for not done.

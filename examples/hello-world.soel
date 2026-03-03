@@ -1,0 +1,9 @@
+This is a simple greeting program.
+
+There is a Greeter who has a name and a greeting message.
+
+When the program starts, it creates a greeter named "SOEL" with the message "Hello, World!".
+
+It then displays the greeting by printing the greeter's message to the screen.
+
+Finally, it asks the user for their name and greets them personally, saying "Nice to meet you, [name]!".
