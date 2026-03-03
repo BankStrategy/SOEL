@@ -185,29 +185,7 @@ examples/calculator.soel:7:140: warning [S001]: other
 
 The compiler inferred `Maybe Double` as the return type for division, correctly mapping the English word "Nothing" to Haskell's `Nothing` constructor.
 
-## Implementations
-
-There are two implementations of the SOEL compiler:
-
-| | TypeScript (`/`) | Haskell (`hs/`) |
-|---|---|---|
-| Runtime | Node.js >= 20 | GHC 9.6+ via cabal |
-| LLM prompts | Shared (`prompts/`) | Shared (`prompts/`) |
-| IR validation | Zod schemas | Aeson FromJSON + sanitization |
-| CLI framework | commander | optparse-applicative |
-
-Both implementations share the same prompt templates, the same 7-stage pipeline architecture, and produce identical Haskell output from the same `.soel` source.
-
 ## Setup
-
-### TypeScript
-
-```bash
-npm install
-npm run build
-```
-
-### Haskell
 
 ```bash
 cd hs
@@ -215,8 +193,6 @@ cabal build
 ```
 
 Requires GHC 9.6+ and cabal-install. If you use [ghcup](https://www.haskell.org/ghcup/), both are auto-detected.
-
-### API key
 
 Set your OpenRouter API key:
 
@@ -237,7 +213,7 @@ Or create a `.soelrc` file (see `.soelrc.example`):
 
 ## Commands
 
-Both implementations expose the same CLI. For the TypeScript version, use `soel` (after `npm link`) or `node dist/index.js`. For the Haskell version, use `cabal run soel --` from the `hs/` directory.
+Run from the `hs/` directory with `cabal run soel --`.
 
 ### `soel compile <file>`
 
@@ -346,14 +322,13 @@ Full `.soelrc` options:
 ## Requirements
 
 - OpenRouter API key
-- GHC 9.6+ (for `soel run` and `soel repair` — auto-detected via ghcup)
-- **TypeScript version**: Node.js >= 20
-- **Haskell version**: cabal-install >= 3.10
+- GHC 9.6+ (auto-detected via ghcup)
+- cabal-install >= 3.10
 
 ## Project structure
 
 ```
-prompts/                          Shared LLM prompt templates
+prompts/                          LLM prompt templates
   semantic-encoder-full.md
   semantic-encoder-fast.md
   ir-transform.md
@@ -365,42 +340,7 @@ examples/                         Sample .soel programs
   calculator.soel
   todo-list.soel
   ecommerce.soel
-```
-
-### TypeScript (`src/`)
-
-```
-src/
-  index.ts                CLI entry point
-  config.ts               Config loading (.soelrc + env)
-  pipeline.ts             7-stage orchestration
-  stages/
-    reader.ts             Read + hash .soel files
-    semantic-encoder.ts   LLM semantic encoding
-    ambiguity-detector.ts Semantic error/warning detection
-    dialog.ts             Interactive ambiguity resolution
-    codegen.ts            LLM Haskell generation
-    writer.ts             Write .hs files
-    ghc.ts                GHC compilation + execution
-    repair.ts             Conversational debugging loop
-  ir/
-    types.ts              NarrativeIR + CodeIR type definitions
-    validate.ts           Zod runtime validation
-    transform.ts          Narrative IR → Code IR (LLM)
-  llm/
-    openrouter.ts         OpenRouter API client
-    prompts.ts            Prompt template loader
-  cache/
-    store.ts              File-based .soel-cache/
-  utils/
-    logger.ts             Diagnostics, colored output, spinners
-    errors.ts             Typed error hierarchy
-```
-
-### Haskell (`hs/`)
-
-```
-hs/
+hs/                               Compiler source
   app/
     Main.hs               CLI entry point (optparse-applicative)
   src/Soel/
@@ -414,7 +354,7 @@ hs/
     Stages/
       Reader.hs            Read + SHA-256 hash .soel files
       SemanticEncoder.hs   LLM semantic encoding
-      AmbiguityDetector.hs Pure ambiguity detection (no IORef)
+      AmbiguityDetector.hs Pure ambiguity detection
       Dialog.hs            Interactive ambiguity resolution (haskeline)
       Codegen.hs           LLM Haskell generation
       Writer.hs            Write .hs files
@@ -434,3 +374,13 @@ hs/
 ## Background
 
 See [SPEC.md](SPEC.md) for the full theoretical foundation — the neurobiology of code vs. language processing, why English-like syntax (Inform 7) doesn't work, and the formal specification of semantically open-ended programming.
+
+## Notes from the author
+
+This idea came to me in a dream. The starting point is a neuroscience finding that's been replicated across multiple fMRI studies: programming languages are not languages. When you read code, your brain routes it through the Multiple Demand network, the same circuitry used for logic puzzles and spatial reasoning. The language network stays dark. Your brain sees through the syntactic dressing and recognizes code for what it is: a deterministic puzzle, not communication.
+
+This means no programming language has ever actually been a language in the neurological sense. Even "natural language programming" efforts like Inform 7 fail the test, the programmer still maintains a mental model of state machines and boolean flags, which is pure MD network territory.
+
+SOEL is an experiment: what if the source code were genuine natural language prose — narratives with entities, intent, ambiguity, and social context and the compiler handled the translation to executable code? You write something closer to a specification document than a program. The compiler semantically encodes it, flags genuine ambiguities as compiler errors (which you resolve through dialog, not syntax fixes), and generates GHC-compilable Haskell.
+
+It's impractical, unreliable, and fascinating. The theoretical foundation is in [SPEC.md](SPEC.md) if you want the full neuroscience deep-dive.

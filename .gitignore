@@ -1,8 +1,4 @@
-node_modules/
-dist/
 .soel-cache/
 .soelrc
-*.js
-*.d.ts
-*.js.map
+hs/dist-newstyle/
 !examples/*.hs
