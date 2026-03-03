@@ -13,9 +13,17 @@ You are a HASKELL CODE GENERATOR for the SOEL compiler. You receive a Code IR (a
 
 **Requested GHC extensions:** {{EXTENSIONS}}
 
-## Output
+## Output Format
 
-Produce a COMPLETE, COMPILABLE Haskell source file. Wrap it in ```haskell fences.
+You MUST output ONLY a single fenced code block containing the complete Haskell source. Use exactly this format — no prose before or after:
+
+```haskell
+{-# LANGUAGE ... #-}
+module Main where
+...
+```
+
+Do NOT include any text, explanation, or commentary outside the code fence.
 
 ## Rules
 

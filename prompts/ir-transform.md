@@ -119,3 +119,4 @@ Follow these rules when converting narrative semantics to code constructs:
 - Every program MUST have an `entryPoint` (the main function)
 - Derive appropriate imports from the types used (Data.Time for UTCTime, etc.)
 - Output must be strictly valid JSON
+- NEVER use null for any field value. Use "" for empty strings, [] for empty arrays, false for missing booleans. Every field must have a concrete value of the correct type.

@@ -1,0 +1,73 @@
+cabal-version:   3.0
+name:            soel
+version:         0.1.0
+synopsis:        SOEL — Semantic Open-Ended Language compiler
+license:         MIT
+build-type:      Simple
+
+executable soel
+  default-language: Haskell2010
+  hs-source-dirs:   app
+  main-is:          Main.hs
+  ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+    , base             >=4.14 && <5
+    , mtl              >=2.2  && <2.4
+    , optparse-applicative >=0.17 && <0.19
+    , text             >=1.2  && <2.2
+    , soel-lib
+
+  other-modules:
+
+library soel-lib
+  default-language: Haskell2010
+  hs-source-dirs:   src
+  ghc-options:      -Wall
+
+  exposed-modules:
+    Soel.Config
+    Soel.Pipeline
+    Soel.Types
+    Soel.IR.Types
+    Soel.IR.Validate
+    Soel.IR.Transform
+    Soel.LLM.OpenRouter
+    Soel.LLM.Prompts
+    Soel.Stages.Reader
+    Soel.Stages.SemanticEncoder
+    Soel.Stages.AmbiguityDetector
+    Soel.Stages.Dialog
+    Soel.Stages.Codegen
+    Soel.Stages.Writer
+    Soel.Stages.GHC
+    Soel.Stages.Repair
+    Soel.Cache.Store
+    Soel.Utils.Logger
+    Soel.Utils.Errors
+
+  build-depends:
+    , aeson              >=2.1    && <2.3
+    , ansi-terminal      >=0.11   && <1.2
+    , base               >=4.14   && <5
+    , bytestring         >=0.10   && <0.13
+    , containers         >=0.6    && <0.8
+    , cryptohash-sha256  >=0.11   && <0.12
+    , directory          >=1.3    && <1.4
+    , file-embed         >=0.0.15 && <0.1
+    , filepath           >=1.4    && <1.6
+    , haskeline          >=0.8    && <0.9
+    , http-client        >=0.7    && <0.8
+    , http-client-tls    >=0.3    && <0.4
+    , http-conduit       >=2.3    && <2.4
+    , http-types         >=0.12   && <0.13
+    , mtl                >=2.2    && <2.4
+    , optparse-applicative >=0.17 && <0.19
+    , regex-tdfa         >=1.3    && <1.4
+    , text               >=1.2    && <2.2
+    , time               >=1.9    && <1.15
+    , transformers       >=0.5    && <0.7
+    , typed-process      >=0.2    && <0.3
+    , vector             >=0.12   && <0.14
+    , unordered-containers >=0.2  && <0.3
+    , scientific         >=0.3    && <0.4
+    , template-haskell   >=2.16   && <2.23

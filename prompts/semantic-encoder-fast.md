@@ -80,3 +80,4 @@ MINI-RUBRIC:
 - Each event should have >=1 role; add links only when explicit or strongly implied.
 - Pragmatics only when there is dialogue or clear interpersonal intent.
 - Keep evidence spans tight and confidence calibrated.
+- NEVER use null for any field value. Use "" for empty strings, [] for empty arrays, 0.0 for missing numbers.

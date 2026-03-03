@@ -212,3 +212,4 @@ RULES:
 - Every non-trivial claim should have an evidence_span and confidence.
 - Keep paraphrases short and faithful to the text.
 - Output must be strictly valid JSON.
+- NEVER use null for any field value. Use "" for empty strings, [] for empty arrays, {} for empty objects, 0.0 for missing numbers. Every field in the schema must have a concrete value of the correct type.
