@@ -13,26 +13,26 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 
 --------------------------------------------------------------------------------
--- Embedded prompt templates (resolved relative to project root, i.e. hs/)
+-- Embedded prompt templates (resolved relative to cabal project root)
 --------------------------------------------------------------------------------
 
 semanticEncoderFullBS :: ByteString
-semanticEncoderFullBS = $(embedFile "../prompts/semantic-encoder-full.md")
+semanticEncoderFullBS = $(embedFile "prompts/semantic-encoder-full.md")
 
 semanticEncoderFastBS :: ByteString
-semanticEncoderFastBS = $(embedFile "../prompts/semantic-encoder-fast.md")
+semanticEncoderFastBS = $(embedFile "prompts/semantic-encoder-fast.md")
 
 irTransformBS :: ByteString
-irTransformBS = $(embedFile "../prompts/ir-transform.md")
+irTransformBS = $(embedFile "prompts/ir-transform.md")
 
 codegenHaskellBS :: ByteString
-codegenHaskellBS = $(embedFile "../prompts/codegen-haskell.md")
+codegenHaskellBS = $(embedFile "prompts/codegen-haskell.md")
 
 ambiguityResolverBS :: ByteString
-ambiguityResolverBS = $(embedFile "../prompts/ambiguity-resolver.md")
+ambiguityResolverBS = $(embedFile "prompts/ambiguity-resolver.md")
 
 pragmaticRepairBS :: ByteString
-pragmaticRepairBS = $(embedFile "../prompts/pragmatic-repair.md")
+pragmaticRepairBS = $(embedFile "prompts/pragmatic-repair.md")
 
 --------------------------------------------------------------------------------
 -- Public API

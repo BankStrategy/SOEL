@@ -4,18 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-SOEL (Semantic Open-Ended Language) is a programming language where you write natural language prose and the compiler — powered by an LLM via OpenRouter — generates executable Haskell. The compiler is written in Haskell (`hs/`).
+SOEL (Semantic Open-Ended Language) is a programming language where you write natural language prose and the compiler — powered by an LLM via OpenRouter — generates executable Haskell.
 
 ## Build & Run
 
 ```bash
-cd hs
 # GHC and cabal must be on PATH — typically via ghcup
 env PATH="$HOME/.ghcup/bin:$PATH" cabal build
-env PATH="$HOME/.ghcup/bin:$PATH" cabal run soel -- compile ../examples/hello-world.soel --lenient
+env PATH="$HOME/.ghcup/bin:$PATH" cabal run soel -- compile examples/hello-world.soel --lenient
 ```
 
-Prompt templates are embedded at compile time via `file-embed` in `hs/src/Soel/LLM/Prompts.hs`. After editing any file in `prompts/`, the binary must be rebuilt (`cabal build`) to pick up changes.
+Prompt templates are embedded at compile time via `file-embed` in `src/Soel/LLM/Prompts.hs`. After editing any file in `prompts/`, the binary must be rebuilt (`cabal build`) to pick up changes.
 
 ### API Key
 

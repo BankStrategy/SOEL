@@ -188,7 +188,6 @@ The compiler inferred `Maybe Double` as the return type for division, correctly 
 ## Setup
 
 ```bash
-cd hs
 cabal build
 ```
 
@@ -213,7 +212,7 @@ Or create a `.soelrc` file (see `.soelrc.example`):
 
 ## Commands
 
-Run from the `hs/` directory with `cabal run soel --`.
+Run with `cabal run soel --` from the project root.
 
 ### `soel compile <file>`
 
@@ -340,35 +339,34 @@ examples/                         Sample .soel programs
   calculator.soel
   todo-list.soel
   ecommerce.soel
-hs/                               Compiler source
-  app/
-    Main.hs               CLI entry point (optparse-applicative)
-  src/Soel/
-    Types.hs               App monad, error types, config
-    Config.hs              Config loading (.soelrc + env + ghcup)
-    Pipeline.hs            7-stage orchestration + diagnostics
-    IR/
-      Types.hs             NarrativeIR + CodeIR ADTs
-      Validate.hs          Aeson FromJSON/ToJSON + LLM JSON sanitization
-      Transform.hs         Narrative IR → Code IR (LLM)
-    Stages/
-      Reader.hs            Read + SHA-256 hash .soel files
-      SemanticEncoder.hs   LLM semantic encoding
-      AmbiguityDetector.hs Pure ambiguity detection
-      Dialog.hs            Interactive ambiguity resolution (haskeline)
-      Codegen.hs           LLM Haskell generation
-      Writer.hs            Write .hs files
-      GHC.hs               GHC compilation + execution
-      Repair.hs            Conversational debugging loop
-    LLM/
-      OpenRouter.hs        OpenRouter API client (http-conduit)
-      Prompts.hs           Compile-time prompt embedding (file-embed)
-    Cache/
-      Store.hs             File-based .soel-cache/
-    Utils/
-      Logger.hs            Diagnostics, ANSI colored output
-      Errors.hs            Typed error hierarchy
-  soel.cabal
+soel.cabal
+app/
+  Main.hs                 CLI entry point (optparse-applicative)
+src/Soel/                 Compiler source
+  Types.hs                App monad, error types, config
+  Config.hs               Config loading (.soelrc + env + ghcup)
+  Pipeline.hs             7-stage orchestration + diagnostics
+  IR/
+    Types.hs              NarrativeIR + CodeIR ADTs
+    Validate.hs           Aeson FromJSON/ToJSON + LLM JSON sanitization
+    Transform.hs          Narrative IR → Code IR (LLM)
+  Stages/
+    Reader.hs             Read + SHA-256 hash .soel files
+    SemanticEncoder.hs    LLM semantic encoding
+    AmbiguityDetector.hs  Pure ambiguity detection
+    Dialog.hs             Interactive ambiguity resolution (haskeline)
+    Codegen.hs            LLM Haskell generation
+    Writer.hs             Write .hs files
+    GHC.hs                GHC compilation + execution
+    Repair.hs             Conversational debugging loop
+  LLM/
+    OpenRouter.hs         OpenRouter API client (http-conduit)
+    Prompts.hs            Compile-time prompt embedding (file-embed)
+  Cache/
+    Store.hs              File-based .soel-cache/
+  Utils/
+    Logger.hs             Diagnostics, ANSI colored output
+    Errors.hs             Typed error hierarchy
 ```
 
 ## Background

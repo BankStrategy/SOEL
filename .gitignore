@@ -1,4 +1,4 @@
 .soel-cache/
 .soelrc
-hs/dist-newstyle/
+dist-newstyle/
 !examples/*.hs
