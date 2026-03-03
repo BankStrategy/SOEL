@@ -185,12 +185,38 @@ examples/calculator.soel:7:140: warning [S001]: other
 
 The compiler inferred `Maybe Double` as the return type for division, correctly mapping the English word "Nothing" to Haskell's `Nothing` constructor.
 
+## Implementations
+
+There are two implementations of the SOEL compiler:
+
+| | TypeScript (`/`) | Haskell (`hs/`) |
+|---|---|---|
+| Runtime | Node.js >= 20 | GHC 9.6+ via cabal |
+| LLM prompts | Shared (`prompts/`) | Shared (`prompts/`) |
+| IR validation | Zod schemas | Aeson FromJSON + sanitization |
+| CLI framework | commander | optparse-applicative |
+
+Both implementations share the same prompt templates, the same 7-stage pipeline architecture, and produce identical Haskell output from the same `.soel` source.
+
 ## Setup
+
+### TypeScript
 
 ```bash
 npm install
 npm run build
 ```
+
+### Haskell
+
+```bash
+cd hs
+cabal build
+```
+
+Requires GHC 9.6+ and cabal-install. If you use [ghcup](https://www.haskell.org/ghcup/), both are auto-detected.
+
+### API key
 
 Set your OpenRouter API key:
 
@@ -204,18 +230,14 @@ Or create a `.soelrc` file (see `.soelrc.example`):
 {
   "openrouter": {
     "apiKey": "sk-or-v1-...",
-    "model": "anthropic/claude-opus-4.6"
+    "model": "anthropic/claude-sonnet-4"
   }
 }
 ```
 
-Optionally link the CLI globally:
-
-```bash
-npm link
-```
-
 ## Commands
+
+Both implementations expose the same CLI. For the TypeScript version, use `soel` (after `npm link`) or `node dist/index.js`. For the Haskell version, use `cabal run soel --` from the `hs/` directory.
 
 ### `soel compile <file>`
 
@@ -323,11 +345,29 @@ Full `.soelrc` options:
 
 ## Requirements
 
-- Node.js >= 20
-- GHC (for `soel run` and `soel repair` — auto-detected via ghcup)
 - OpenRouter API key
+- GHC 9.6+ (for `soel run` and `soel repair` — auto-detected via ghcup)
+- **TypeScript version**: Node.js >= 20
+- **Haskell version**: cabal-install >= 3.10
 
 ## Project structure
+
+```
+prompts/                          Shared LLM prompt templates
+  semantic-encoder-full.md
+  semantic-encoder-fast.md
+  ir-transform.md
+  codegen-haskell.md
+  ambiguity-resolver.md
+  pragmatic-repair.md
+examples/                         Sample .soel programs
+  hello-world.soel
+  calculator.soel
+  todo-list.soel
+  ecommerce.soel
+```
+
+### TypeScript (`src/`)
 
 ```
 src/
@@ -355,18 +395,40 @@ src/
   utils/
     logger.ts             Diagnostics, colored output, spinners
     errors.ts             Typed error hierarchy
-prompts/
-  semantic-encoder-full.md
-  semantic-encoder-fast.md
-  ir-transform.md
-  codegen-haskell.md
-  ambiguity-resolver.md
-  pragmatic-repair.md
-examples/
-  hello-world.soel
-  calculator.soel
-  todo-list.soel
-  ecommerce.soel
+```
+
+### Haskell (`hs/`)
+
+```
+hs/
+  app/
+    Main.hs               CLI entry point (optparse-applicative)
+  src/Soel/
+    Types.hs               App monad, error types, config
+    Config.hs              Config loading (.soelrc + env + ghcup)
+    Pipeline.hs            7-stage orchestration + diagnostics
+    IR/
+      Types.hs             NarrativeIR + CodeIR ADTs
+      Validate.hs          Aeson FromJSON/ToJSON + LLM JSON sanitization
+      Transform.hs         Narrative IR → Code IR (LLM)
+    Stages/
+      Reader.hs            Read + SHA-256 hash .soel files
+      SemanticEncoder.hs   LLM semantic encoding
+      AmbiguityDetector.hs Pure ambiguity detection (no IORef)
+      Dialog.hs            Interactive ambiguity resolution (haskeline)
+      Codegen.hs           LLM Haskell generation
+      Writer.hs            Write .hs files
+      GHC.hs               GHC compilation + execution
+      Repair.hs            Conversational debugging loop
+    LLM/
+      OpenRouter.hs        OpenRouter API client (http-conduit)
+      Prompts.hs           Compile-time prompt embedding (file-embed)
+    Cache/
+      Store.hs             File-based .soel-cache/
+    Utils/
+      Logger.hs            Diagnostics, ANSI colored output
+      Errors.hs            Typed error hierarchy
+  soel.cabal
 ```
 
 ## Background

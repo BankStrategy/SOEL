@@ -1,62 +1,90 @@
-# SOEL — Semantic Open-Ended Language
+# CLAUDE.md
 
-## Overview
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-SOEL is a programming language where you write natural language narratives and the compiler — powered by an LLM via OpenRouter — semantically encodes them and generates executable Haskell code.
+## What This Is
 
-## Tech Stack
-
-- **Language**: TypeScript (Node.js, ESM)
-- **LLM**: Claude Sonnet via OpenRouter
-- **Target**: GHC-compilable Haskell (`.hs` files)
-- **Dependencies**: commander, zod, chalk, ora
+SOEL (Semantic Open-Ended Language) is a programming language where you write natural language prose and the compiler — powered by an LLM via OpenRouter — generates executable Haskell. There are two implementations: TypeScript (original) and Haskell (native port). Both share the same LLM prompt templates in `prompts/` and produce identical pipeline behavior.
 
 ## Build & Run
 
+### TypeScript
+
 ```bash
 npm install
-npm run build          # compiles TypeScript → dist/
-node dist/index.js     # or use `soel` after npm link
+npm run build          # TypeScript → dist/
+npm run dev            # watch mode
+soel compile prog.soel --lenient   # after npm link
 ```
 
-## CLI Commands
+### Haskell
 
 ```bash
-soel compile program.soel              # → program.hs
-soel compile program.soel -o out.hs    # custom output path
-soel compile program.soel --ir-only    # output semantic IR JSON only
-soel compile program.soel --fast       # fast encoder (less detail)
-soel compile program.soel --no-dialog  # skip interactive ambiguity resolution
-soel run program.soel                  # compile + GHC compile + execute
-soel check program.soel                # show ambiguities only
-soel repair program.soel               # conversational debugging loop
+cd hs
+# GHC and cabal must be on PATH — typically via ghcup
+env PATH="$HOME/.ghcup/bin:$PATH" cabal build
+env PATH="$HOME/.ghcup/bin:$PATH" cabal run soel -- compile ../examples/hello-world.soel --lenient
 ```
 
-## Configuration
+Prompt templates are embedded at compile time via `file-embed` in `hs/src/Soel/LLM/Prompts.hs`. After editing any file in `prompts/`, the Haskell binary must be rebuilt (`cabal build`) to pick up changes.
 
-Set `OPENROUTER_API_KEY` env var, or create a `.soelrc` file (see `.soelrc.example`).
+### API Key
+
+```bash
+export OPENROUTER_API_KEY="sk-or-v1-..."
+```
+
+Or use a `.soelrc` file (searches upward from cwd). Env var takes precedence.
 
 ## Architecture
 
-7-stage pipeline:
-1. **Read** — parse `.soel` source, hash for caching
-2. **Semantic Encode** — LLM converts narrative → Narrative IR (JSON)
-3. **Transform** — LLM converts Narrative IR → Code IR (Haskell-oriented)
-4. **Detect Ambiguities** — find low-confidence/conflicting areas
-5. **Dialogical Feedback** — interactive terminal loop to resolve ambiguities
-6. **Generate Haskell** — LLM produces compilable `.hs` from Code IR
-7. **Write + GHC** — write file, optionally compile and run with GHC
+Seven-stage pipeline — three stages call the LLM, one is interactive, three are local:
 
-## Project Structure
+```
+.soel source
+  → Reader (hash for cache)
+  → SemanticEncoder (LLM → NarrativeIR)
+  → Transform (LLM → CodeIR)
+  → AmbiguityDetector (pure analysis)
+  → Dialog (interactive or auto-resolve)
+  → Codegen (LLM → Haskell source)
+  → Writer + GHC (write .hs, optionally compile + run)
+```
 
-- `src/` — TypeScript source
-  - `index.ts` — CLI entry point (commander)
-  - `config.ts` — `.soelrc` / env var loading (zod)
-  - `pipeline.ts` — orchestrates all 7 stages
-  - `stages/` — one file per pipeline stage
-  - `ir/` — Semantic IR types, validation, transform
-  - `llm/` — OpenRouter client, prompt loader
-  - `cache/` — file-based `.soel-cache/`
-  - `utils/` — logger, error types
-- `prompts/` — LLM prompt templates (`.md` files)
-- `examples/` — sample `.soel` programs
+### Two-layer IR
+
+**NarrativeIR** — rich narrative semantics: entities with typed attributes and mentions, events with thematic roles and participants, relationships, themes, and flagged ambiguities. Output of the semantic encoder.
+
+**CodeIR** — Haskell-oriented: module declaration, imports, type definitions (record/sum/newtype/alias), pure functions, IO actions, constraints, and an entry point. Output of the transform stage.
+
+Both IRs are JSON. The TypeScript version validates with Zod schemas (`src/ir/validate.ts`). The Haskell version uses Aeson `FromJSON` instances (`src/Soel/IR/Validate.hs`) with a `sanitizeLLMJson` pre-pass that strips null values from LLM output before parsing.
+
+### App Monad (Haskell)
+
+```haskell
+type App a = ReaderT SoelConfig (ExceptT SoelError IO) a
+```
+
+Config via `ask`/`asks`, errors via `throwError`. Seven error constructors in `SoelError` (see `Utils/Errors.hs`). API key extraction is centralized in `requireApiKeyM`.
+
+### Ambiguity Modes
+
+- **Strict** (default) — errors halt compilation, warnings auto-resolve
+- **Dialog** (`--dialog`) — interactive resolution via haskeline
+- **Lenient** (`--lenient`) — everything auto-resolves with highest confidence
+
+### LLM Integration
+
+All LLM calls go through OpenRouter (`llmRequest` in both implementations). The `extractJSON` function handles fenced code blocks and raw JSON extraction from LLM responses. Prompts explicitly forbid null values — the sanitization layer (`sanitizeLLMJson`) is defense-in-depth for when the LLM ignores this.
+
+### Caching
+
+File-based in `.soel-cache/`. Keyed by SHA-256 hash of source content. Caches NarrativeIR and CodeIR separately — cache hits skip the corresponding LLM call.
+
+## Key Conventions
+
+- Haskell modules mirror TypeScript 1:1 — `src/stages/codegen.ts` ↔ `hs/src/Soel/Stages/Codegen.hs`
+- Orphan instances for IR JSON serialization live in `Validate.hs` (imported via `import Soel.IR.Validate ()`)
+- `severityText` and `categoryText` are canonical display functions in `IR/Types.hs` — do not redefine locally
+- The Haskell Codegen stage forces `module Main where` on generated code (GHC requirement for executables)
+- AmbiguityDetector is pure — no IORef, threads an index counter through detection functions
